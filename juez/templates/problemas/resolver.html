@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}{{ problema['title'] }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<p class="body">{{ problema['body'] }}</p>
+<form enctype=multipart/form-data method="POST">
+  <input type="file" name="file"/> <input type="submit" value="Evalúa">
+</form>
+
+<div>
+  {{ resultado }}
+</div>
+
+{% endblock %}

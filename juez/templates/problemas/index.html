@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Problemas{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  {% for problema in problemas %}
+    <article class="post">
+      <header>
+        <div>
+          <h1>{{ problema['title'] }}</h1>
+        </div>
+          <a class="action" href="{{ url_for('problemas.resolver', id=problema['id']) }}">Resolver</a>
+
+      </header>
+      <p class="body">{{ problema['body'] }}</p>
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+{% endblock %}
