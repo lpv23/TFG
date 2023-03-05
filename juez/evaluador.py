@@ -54,7 +54,7 @@ def lee_problema(id):
 # cuyo nombre viene definido por la clave 'funcion' del diccionario lee_problema(id)
 # - Ejecutar la función con cada uno de los ficheros de prueba que hay en el directorio del problema
 # - Comprobar si la salida coincide con la esperada
-# - Devolver una cadena, que contenga en cada línea el resultado de cada prueba.
+# - Devolver una lista que contenga cadenas con el resultado de cada prueba.
 # (Si la prueba es correcta, el contenido será OK y su tiempo de ejecución.)
 # (Si la prueba es incorrecta, el contenido es: entrada, salida obtenida, salida esperada.)
 #
