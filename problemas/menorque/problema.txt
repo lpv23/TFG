@@ -1,3 +1,6 @@
 Menor que
 Devuelve True si el primer elemento es menor que el segundo
 menorque
+0
+int
+int
