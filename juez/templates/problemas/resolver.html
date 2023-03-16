@@ -11,7 +11,14 @@
 </form>
 
 <div>
-  {{ resultado }}
+  {% for result in resultado %}
+    <article class="post">
+      <p class="body">{{ result }}</p>
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
 </div>
 
 {% endblock %}
