@@ -1,0 +1,5 @@
+Ordena una lista
+Recibe una lista de enteros y la ordena de menor a mayor
+ordenar
+1
+list int
