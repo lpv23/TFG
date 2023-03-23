@@ -1,5 +1,5 @@
-Comprueba si la cadena es palíndroma
-Devuelve True si el primer elemento coincide con el último, el segundo con el penúltimo...
+Cadena palíndroma
+Comprueba si la cadena introducida como parámetro es palíndroma y devuelve un valor booleano. Una cadena es palíndroma si es igual al darle la vuelta, es decir, si el primer elemento es igual que el último, el segundo igual que el penúltimo...
 palindromo
 1
 str

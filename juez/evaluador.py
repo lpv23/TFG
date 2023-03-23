@@ -6,11 +6,12 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy
+import sympy
 
 sufijo_entrada = "entrada.txt"
 sufijo_salida = "salida.txt"
-# carpeta_problemas = "problemas"
-carpeta_problemas = "C:\\Users\\laura\\PycharmProjects\\TFG\\problemas"
+carpeta_problemas = "problemas"
+# carpeta_problemas = "C:\\Users\\laura\\PycharmProjects\\TFG\\problemas"
 
 
 # Inspeccionar el contenido de la carpeta "problemas" y devolver una lista con los nombres de las subcarpetas
@@ -58,29 +59,29 @@ def lee_problema(id):
 # Devuelve una entrada aleatoria del tipo indicado y de tamaño n
 def entrada_aleatoria(tipo, n):
     if tipo == 'str':  # string de letras minúsculas - ¿Añado mayúsculas?
-        return '"' + ''.join(random.choice(string.ascii_lowercase) for _ in range(n)) + '"'
+        return ''.join(random.choice(string.ascii_lowercase) for _ in range(n))
     elif tipo == 'int':
-        return str(random.randint(10 ** (n - 1), (10 ** n) - 1))
+        return random.randint(10 ** (n - 1), (10 ** n) - 1)
     elif tipo.startswith('list'):
         resultado = []
         if tipo.removeprefix('list ').startswith('str'):
             for _ in range(n):  # str de 10 letras minúsculas
-                resultado.append('"' + ''.join(random.choice(string.ascii_lowercase) for _ in range(10)) + '"')
+                resultado.append(''.join(random.choice(string.ascii_lowercase) for _ in range(10)))
         elif tipo.removeprefix('list ').startswith('int'):
             for _ in range(n):  # int entre 0 y 100
-                resultado.append(str(random.randint(0, 100)))
+                resultado.append(random.randint(0, 100))
         if tipo.endswith('sorted'):
             resultado.sort()
-        return '[' + ', '.join(resultado) + ']'
+        return resultado
     elif tipo.startswith('tuple'):
         resultado = []
         if tipo.removeprefix('tuple ').startswith('str'):
             for _ in range(n):  # str de 10 letras minúsculas
-                resultado.append('"' + ''.join(random.choice(string.ascii_lowercase) for _ in range(10)) + '"')
+                resultado.append(''.join(random.choice(string.ascii_lowercase) for _ in range(10)))
         elif tipo.removeprefix('tuple ').startswith('int'):
             for _ in range(n):  # int entre 0 y 100
-                resultado.append(str(random.randint(0, 100)))
-        return '(' + ', '.join(resultado) + ')'
+                resultado.append(random.randint(0, 100))
+        return tuple(resultado)
     return ''
 
 
@@ -89,32 +90,45 @@ def tiempo_complejidad(dic_problema, fichero, tams_entrada):
     # leo la función
     with open(fichero, 'r') as fichero:
         exec(fichero.read())
-    funcion = dic_problema['funcion']
+    funcion = eval(dic_problema['funcion'])
     aumentar = int(dic_problema['aumentar'])
     tipo_entrada = dic_problema['tipo_param']
 
-    tams = [0]  # ¿debería inicializar con el tamaño de entrada de la prueba?
-    tiempos = [0.]  # ¿debería calcular el tiempo con tamaño 0 o inicializar con el tiempo de la prueba?
+    # inicializo tamaños y tiempos
+    tams = [1]
+    if aumentar != 0:
+        tams_entrada[aumentar - 1] = tams[-1]
+    tiempos = []
+    aum = 1
+    stop = False
 
-    while tiempos[-1] < 0.1 and tams[-1] < 500:  # ¿Cuándo paro?
-        print('sigo', tams[-1], tiempos[-1])
-        # aumento tamaño del parametro que toca - ¿siempre es el mismo aumento?
-        if aumentar != 0:
-            tams_entrada[aumentar - 1] = tams[-1] + 5
+    # evalúo la función con tamaños cada vez mayores y guardo el tiempo
+    while tiempos == [] or (tiempos[-1] < 1 and not stop):
+        if tiempos:
+            print('sigo', tams[-1], tiempos[-1])
+        # aumento tamaño del parámetro que toca
+        if len(tiempos) >= 2 and abs(tiempos[-1] - tiempos[-2]) < 1e-4:
+            aum *= 10
+            print(aum)
+            if len(tiempos) >= 4 and abs(tiempos[-1] - tiempos[-3]) < 1e-5 and abs(tiempos[-1] - tiempos[-4]) < 1e-5:
+                stop = True
+
+        if aumentar != 0 and tiempos != []:
+            tams_entrada[aumentar - 1] = tams[-1] + 500 * aum
             tams.append(tams_entrada[aumentar - 1])
-        # evaluo 10 veces con ese tamaño
+        # evalúo 10 veces con ese tamaño
         tiempo_pruebas = []
         for _ in range(10):
             # creo otra prueba aleatoria
             entrada = []
             for i in range(len(tipo_entrada)):
                 entrada.append(entrada_aleatoria(tipo_entrada[i], tams_entrada[i]))
-            # evaluo
-            entrada_str = ', '.join(entrada)
+            # evalúo y cuento el tiempo
             tiempoini = time.perf_counter()
-            eval(funcion + '(' + entrada_str + ')')
+            funcion(*entrada)
             tiempo_pruebas.append(time.perf_counter() - tiempoini)
 
+        # guardo el tiempo medio
         tiempos.append(sum(tiempo_pruebas) / 10)
 
     return tams, tiempos
@@ -137,15 +151,19 @@ def polinomial(x, a, b, c):
     return a + b * x ** c
 
 
-def linearlogaritmica(x, a):
-    return a * x * np.log1p(x)
+def linearlogaritmica(x, a, b):
+    return a + b * x * np.log2(x)
 
 
 def logaritmica(x, a, b):
-    return a + b * np.log1p(x)
+    return a + b * np.log2(x)
 
 
-funciones = (constante, lineal, cuadratica, polinomial, logaritmica, linearlogaritmica)
+def exponencial(x, a, b):
+    return a + b * 2 ** x
+
+
+funciones = (constante, lineal, cuadratica, polinomial, logaritmica, linearlogaritmica, exponencial)
 
 
 # Comprueba qué función de las familias de funciones es más próxima a los datos tamaño-tiempo que tenemos
@@ -156,23 +174,31 @@ def funcion_complejidad(x, y, funcs=funciones):
     for f in funcs:
         popt = scipy.optimize.curve_fit(f, x, y)[0]
         valores_opt.append(popt)
-        # print('popt ', popt)
         residuos.append(sum(abs(y - f(x, *popt))))
+    print('residuos: ', residuos)
     res_min = np.min(np.array(residuos))
-    print(residuos)
     pos_min = residuos.index(res_min)
     fun_min = funcs[pos_min]
     val_min = valores_opt[pos_min]
-    print('min', fun_min, val_min)
-    return fun_min, val_min, res_min
+    print('min: ', fun_min, val_min)
+    resultado_str = 'La función de complejidad es de orden ' + fun_min.__name__
+    if fun_min.__name__ == 'polinomial':
+        resultado_str += 'con exponente ' + str(round(val_min[-1], 3))
+    return fun_min, val_min, res_min, resultado_str
 
 
 # Pinta la gráfica de tamaño-tiempo junto con la función aproximada
 def pinta_grafica(tams, tiempos):
-    f, params, res = funcion_complejidad(tams, tiempos)
-    plt.plot(tams, tiempos, '.-')
+    f, params, resi, result = funcion_complejidad(tams, tiempos)
+    params_r = [float(format(_, '.10f')) for _ in params]
+    print(params_r)
+    plt.plot(tams, tiempos, '.-', label='tiempo')
     ftams = f(np.array(tams), *params)
-    plt.plot(tams, ftams, '--')
+    x = sympy.Symbol('x')
+    f_str = f(x, *params_r)
+    print(f_str)
+    plt.plot(tams, ftams, '--', label=f_str)
+    plt.legend()
     plt.savefig('grafica.png')
     plt.show()
 
@@ -189,9 +215,9 @@ def pinta_grafica(tams, tiempos):
 # Los ficheros xxxxxxx.salida.txt contienen la salida esperada en la primera línea
 def evalua_problema(id, fichero):
     dic_problema = lee_problema(id)
-    funcion = dic_problema['funcion']
     with open(fichero, 'r') as fich:
         exec(fich.read())
+    funcion = eval(dic_problema['funcion'])
     pruebas, resultados = [], []
     with scandir(os.path.join(carpeta_problemas, id)) as carpeta:
         for file in carpeta:
@@ -203,9 +229,9 @@ def evalua_problema(id, fichero):
             # Quitamos el argumento vacío que surge si hay una línea vacía al final
             if entrada[-1] == '' and len(entrada) > len(dic_problema['tipo_param']):
                 entrada = entrada[:-1]
-            entrada_str = ', '.join(entrada)
+            entrada = [eval(_) for _ in entrada]
             tiempoini = time.perf_counter()
-            salidareal = eval(funcion + '(' + entrada_str + ')')
+            salidareal = funcion(*entrada)
             tiempototal = time.perf_counter() - tiempoini
         with open(prueba[1], 'r') as s:
             salidaesperada = eval(s.read())
@@ -214,26 +240,44 @@ def evalua_problema(id, fichero):
             # calculo los tamaños de entrada - ¿solo lo necesito si algún valor se queda fijo?
             tams_entrada = []
             for i in range(len(entrada)):
-                print(entrada)
                 tipo = dic_problema['tipo_param'][i]
                 if tipo in ['str', 'int']:
-                    tams_entrada.append(len(entrada[i]))
+                    tams_entrada.append(len(str(entrada[i])))
                 elif tipo == 'float':
                     parte_entera, parte_decimal = entrada[i].split('.')
                     tams_entrada.append([len(parte_entera), len(parte_decimal)])
                 elif tipo.startswith('list') or tipo.startswith('tuple'):
-                    tams_entrada.append([len(eval(entrada[i])), len(str(eval(entrada[i])[0]))])
+                    tams_entrada.append(len(entrada[i]))  # ¿HAY QUE CAMBIARLO?
             # calculo el tiempo para entradas cada vez mayores - ¿y si aumentar == 0?
-            print(tams_entrada)
             tams, tiempos = tiempo_complejidad(dic_problema, fichero, tams_entrada)
             pinta_grafica(tams, tiempos)
         else:
-            resultados.append('(' + entrada_str + ')' + ', ' + str(salidaesperada) + ', ' + str(salidareal))
+            resultados.append('(' + ', '.join(entrada) + ')' + ', ' + str(salidaesperada) + ', ' + str(salidareal))
     return resultados
 
 
 # print(evalua_problema('alfabetica', 'C:\\Users\\laura\\PycharmProjects\\TFG\\otros\\solucion-alfabetica.py'))
 # print(evalua_problema('menorque', 'C:\\Users\\laura\\PycharmProjects\\TFG\\otros\\solucion-menorque.py'))
-# evalua_problema('ordenar', 'C:\\Users\\laura\\PycharmProjects\\TFG\\otros\\solucion-ordenar-sort.py')
-# evalua_problema('buscar', 'C:\\Users\\laura\\PycharmProjects\\TFG\\otros\\solucion-buscar-unoauno-inefi.py')
-# evalua_problema('palindromo', 'C:\\Users\\laura\\PycharmProjects\\TFG\\otros\\solucion-palindromo-inefi.py')
+
+
+# base = 'C:\\Users\\laura\\PycharmProjects\\TFG\\otros'
+# base = 'otros'
+
+# EJEMPLOS PALÍNDROMO
+# evalua_problema('palindromo', os.path.join(base, 'solucion-palindromo-efi.py'))
+# evalua_problema('palindromo', os.path.join(base, 'solucion-palindromo-inefi.py'))
+
+
+# EJEMPLOS ORDENAR
+# evalua_problema('ordenar', os.path.join(base, 'solucion-ordenar-burbuja.py'))
+# evalua_problema('ordenar', os.path.join(base, 'solucion-ordenar-insercion.py'))
+# evalua_problema('ordenar', os.path.join(base, 'solucion-ordenar-seleccion.py'))
+# evalua_problema('ordenar', os.path.join(base, 'solucion-ordenar-sort.py')) # no para
+
+# EJEMPLOS BUSCAR
+# evalua_problema('buscar', os.path.join(base, 'solucion-buscar-binaria.py'))
+# evalua_problema('buscar', os.path.join(base, 'solucion-buscar-unoauno.py')) # no para
+# evalua_problema('buscar', os.path.join(base, 'solucion-buscar-unoauno-inefi.py')) # no para
+# evalua_problema('buscar', os.path.join(base, 'solucion-buscar-in.py'))  # no para
+
+# evalua_problema('potencias2', os.path.join(base, 'solucion-potencias2-inefi.py'))

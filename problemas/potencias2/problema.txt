@@ -1,0 +1,5 @@
+Potencias de 2
+Esta función recibe un entero n y devuelve 2 elevado a n
+potencias2
+1
+int
