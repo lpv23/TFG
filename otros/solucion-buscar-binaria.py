@@ -1,14 +1,3 @@
-# def buscar(lista, elem):
-#     while len(lista) > 0:
-#         elem_mitad = lista[len(lista) // 2]
-#         if elem_mitad == elem:
-#             return True
-#         if elem_mitad < elem:
-#             lista = lista[(len(lista) // 2 + 1):]
-#         else:
-#             lista = lista[:len(lista) // 2]
-#     return False
-
 def buscar(lista, elem):
     inicio = 0
     fin = len(lista) - 1
