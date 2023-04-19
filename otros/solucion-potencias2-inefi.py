@@ -1,2 +1,4 @@
 def potencias2(n):
-    return 2**(n-1) + 2**(n-1)
+    if n == 1:
+        return 2
+    return potencias2(n-1) + potencias2(n-1)
