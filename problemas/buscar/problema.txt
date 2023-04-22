@@ -1,6 +1,6 @@
 Busca un elemento en una lista ordenada
 Recibe una lista ordenada y un elemento. Devuelve True si el elemento se encuentra en la lista y False en caso contrario.
 buscar
-1
+1, 2
 list int sorted
-int
+int list
