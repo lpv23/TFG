@@ -1,5 +1,5 @@
 Palabra alfabética
-Escribe una función llamada alfabetica. Dicha función recibirá un único parámetro: una cadena de caracteres; y devolverá un valor booleano. La función debe devolver True si la cadena de caracteres pasada como parámetro es una palabra alfabética y False en caso contrario. Una palabra es alfabética  si todas sus letras están ordenadas alfabéticamente
+Escribe una función llamada alfabetica. Dicha función recibirá un único parámetro: una cadena de caracteres; y devolverá un valor booleano. La función debe devolver True si la cadena de caracteres pasada como parámetro es una palabra alfabética y False en caso contrario. Una palabra es alfabética si todas sus letras están ordenadas alfabéticamente.
 alfabetica
 1
 str

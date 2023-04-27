@@ -1,4 +1,4 @@
-def menorque(n, m):  # está mal hecha
-    if n > m:
+def menorque(n, m):
+    if n < m:
         return True
     return False

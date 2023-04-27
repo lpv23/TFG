@@ -1,5 +1,5 @@
 Cadena palíndroma
-Comprueba si la cadena introducida como parámetro es palíndroma y devuelve un valor booleano. Una cadena es palíndroma si es igual al darle la vuelta, es decir, si el primer elemento es igual que el último, el segundo igual que el penúltimo...
+Escribe una función llamada palindromo que compruebe si la cadena introducida como único parámetro es palíndroma y devuelva un valor booleano: True si lo es y False en caso contrario. Una cadena es palíndroma si es igual al darle la vuelta, es decir, si el primer elemento es igual que el último, el segundo igual que el penúltimo...
 palindromo
 1
 str

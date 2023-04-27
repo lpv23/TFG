@@ -1,5 +1,5 @@
 Menor que
-Devuelve True si el primer elemento es menor que el segundo
+Diseña una función llamada menorque, que reciba dos enteros y devuelva un valor booleano: True si el primero es menor que el segundo y False en caso contrario.
 menorque
 0
 int

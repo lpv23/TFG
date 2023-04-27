@@ -65,7 +65,7 @@ def lee_problema(id):
                         'title': lineas[0],
                         'body': lineas[1],
                         'funcion': lineas[2],
-                        'aumentar': [int(_)-1 for _ in lineas[3].split(', ') if _ != 0],
+                        'aumentar': [int(_) - 1 for _ in lineas[3].split(', ') if _ != '0'],
                         'tipo_param': lineas[4:]}
     return {}
 
@@ -82,8 +82,8 @@ def entrada_aleatoria(tipo, n):
             return random.randint(10 ** (n - 1), (10 ** n) - 1)
         elif tipo.removeprefix('int ').startswith('list'):
             if tipo.endswith('out'):
-                return 2*n + 1
-            return random.randint(0, 2*n)
+                return 2 * n + 1
+            return random.randint(0, 2 * n)
         return n
     elif tipo.startswith('list'):
         resultado = []
@@ -107,13 +107,13 @@ def entrada_aleatoria(tipo, n):
             for _ in range(n):  # int entre 0 y el doble del tamaño
                 resultado.append(random.randint(0, n * 2))
         return tuple(resultado)
-    return ''
+    return None
 
 
-def contador_lineas(funcion):
+def contador_lineas(cad_funcion):
     tab = '    '
     cont = 'contador_de_lineas_para_calcular_oe_complejidad'
-    lista = funcion.split('\n')
+    lista = cad_funcion.split('\n')
     lista.insert(1, tab + 'global ' + cont)
     i = 2
     while i < len(lista):
@@ -396,17 +396,21 @@ def comprueba_pruebas(dic_problema, cad_funcion, calcula_tams=False):
             # Quitamos el argumento vacío que surge si hay una línea vacía al final
             if entrada[-1] == '' and len(entrada) > len(dic_problema['tipo_param']):
                 entrada = entrada[:-1]
-            entrada = [eval(_) for _ in entrada]
-            tiempoini = time.perf_counter()
-            salidareal = funcion(*entrada)
-            tiempototal = time.perf_counter() - tiempoini
+            entrada_eval = [eval(_) for _ in entrada]
         with open(prueba[1], 'r') as s:
             salidaesperada = eval(s.read())
-        if salidareal == salidaesperada:
-            resultados.append('OK' + ', ' + str(tiempototal))
-        else:
+        try:
+            tiempoini = time.perf_counter()
+            salidareal = funcion(*entrada_eval)
+            tiempototal = time.perf_counter() - tiempoini
+            if salidareal == salidaesperada:
+                resultados.append('OK' + ', ' + str(tiempototal))
+            else:
+                todo_correcto = False
+                resultados.append('(' + ', '.join(entrada) + ')' + ', ' + str(salidaesperada) + ', ' + str(salidareal))
+        except:
             todo_correcto = False
-            resultados.append('(' + ', '.join(entrada) + ')' + ', ' + str(salidaesperada) + ', ' + str(salidareal))
+            resultados.append('Ha surgido un error. (' + ', '.join(entrada) + ')' + ', ' + str(salidaesperada))
 
     if calcula_tams and todo_correcto and len(pruebas) > 0:
         # Calculamos los tamaños de entrada necesarios
@@ -426,7 +430,7 @@ def comprueba_pruebas(dic_problema, cad_funcion, calcula_tams=False):
                 elif tipo.startswith('list') or tipo.startswith('tuple'):
                     tams_entrada.append(len(entrada[i]))
     else:
-        tams_entrada = [0]*len(dic_problema['tipo_param'])
+        tams_entrada = [0] * len(dic_problema['tipo_param'])
 
     return todo_correcto, resultados, tams_entrada
 
@@ -448,7 +452,7 @@ def evalua_problema(id, fichero, complejidad=''):
 
     aumenta = dic_problema['aumentar']
     # solo calculo los tamaños si alguno se queda fijo
-    calcula_tams = True if aumenta != [] and len(aumenta) < len(dic_problema['tipo_param']) else False
+    calcula_tams = True if len(aumenta) < len(dic_problema['tipo_param']) else False
     todo_correcto, resultados, tams_entrada = comprueba_pruebas(dic_problema, cad_funcion, calcula_tams)
 
     if todo_correcto and (complejidad == 'T' or complejidad == 'OE'):
@@ -458,9 +462,8 @@ def evalua_problema(id, fichero, complejidad=''):
 
     return resultados
 
-
 # print(evalua_problema('alfabetica', 'C:\\Users\\laura\\PycharmProjects\\TFG\\otros\\solucion-alfabetica.py'))
-# print(evalua_problema('menorque', 'C:\\Users\\laura\\PycharmProjects\\TFG\\otros\\solucion-menorque.py'))
+# print(evalua_problema('menorque', 'C:\\Users\\laura\\PycharmProjects\\TFG\\otros\\solucion-menorque-mal.py'))
 
 
 # base = 'C:\\Users\\laura\\PycharmProjects\\TFG\\otros'
@@ -485,3 +488,6 @@ def evalua_problema(id, fichero, complejidad=''):
 # EJEMPLOS EXPONENCIAL # aumento muy pequeño
 # evalua_problema('potencias2', os.path.join(base, 'solucion-potencias2-efi.py'), 'T')
 # evalua_problema('potencias2', os.path.join(base, 'solucion-potencias2-inefi.py'), 'OE')
+
+# EJEMPLOS MENORQUE 
+# evalua_problema('menorque', os.path.join(base, 'solucion-menorque.py'), 'T')

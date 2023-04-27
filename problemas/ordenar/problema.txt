@@ -1,5 +1,5 @@
 Ordena una lista
-Recibe una lista de enteros y la ordena de menor a mayor
+Programa una función llamada ordenar que reciba una lista de enteros y devuelva la lista ordenada de menor a mayor.
 ordenar
 1
 list int
