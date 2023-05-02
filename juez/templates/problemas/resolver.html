@@ -7,7 +7,18 @@
 {% block content %}
 <p class="body">{{ problema['body'] }}</p>
 <form enctype=multipart/form-data method="POST">
-  <input type="file" name="file"/> <input type="submit" value="Evalúa">
+  <p>Selecciona el fichero:</p>
+  <input type="file" name="file"/>
+
+  <p>Selecciona respecto a qué magnitud se calcula la complejidad:</p>
+ <select name="metodo" id="metodo">
+  <option value="T">Tiempo de ejecución</option>
+  <option value="OE">Operaciones elementales</option>
+</select>
+
+  <p></p>
+  <input type="submit" value="Evalúa">
+
 </form>
 
 <div>
@@ -21,4 +32,12 @@
   {% endfor %}
 </div>
 
+{% for grafica in graficas %}
+<div>
+  <img src="/static/{{ grafica }}"/>
+</div>
+{% endfor %}
+
+
 {% endblock %}
+

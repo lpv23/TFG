@@ -331,11 +331,14 @@ def funciones_complejidad(x, y, funcs=funciones):
 
 
 # Pinta la gráfica de tamaño-tiempo junto con la función aproximada y junto con todas las aproximaciones calculadas
-def pinta_graficas(x, y, complejidad):
+def pinta_graficas(x, y, prefijo_graficas,complejidad):
     if complejidad == 'T':
         label_comp = 'Tiempo'
     else:
         label_comp = 'Operaciones'
+
+    retorno=[]
+
     funcs, val_opt, residuos, fx = funciones_complejidad(x, y)
     res_min = np.min(np.array(residuos))
     pos_min = residuos.index(res_min)
@@ -360,8 +363,11 @@ def pinta_graficas(x, y, complejidad):
         titulo += ' con exp ' + str(round(val_min[-1], 4))
     plt.title(titulo)
     plt.tight_layout()
-    plt.savefig('grafica_mejor.png')
-    plt.show()
+
+    fichero=prefijo_graficas+"_"+'grafica_mejor.png'
+    plt.savefig(fichero)
+    retorno.append(os.path.basename(fichero))
+    #plt.show()
 
     plt.plot(x, y, '.-', label=label_comp)
     for i in range(len(funcs)):
@@ -376,9 +382,13 @@ def pinta_graficas(x, y, complejidad):
     plt.legend(bbox_to_anchor=(1.05, 1.05), loc='upper left')
     plt.tight_layout()
     plt.title('Gráfica con todas las aproximaciones.')
-    plt.savefig('grafica_todas.png')
-    plt.show()
 
+    fichero=prefijo_graficas+"_"+'grafica_todas.png'
+    plt.savefig(fichero)
+    retorno.append(os.path.basename(fichero))
+    #plt.show()
+
+    return retorno
 
 def comprueba_pruebas(dic_problema, cad_funcion, calcula_tams=False):
     exec(cad_funcion, globals())
@@ -445,10 +455,12 @@ def comprueba_pruebas(dic_problema, cad_funcion, calcula_tams=False):
 #
 # Los ficheros xxxxxxx.entrada.txt contienen un parámetro de entrada en cada línea
 # Los ficheros xxxxxxx.salida.txt contienen la salida esperada en la primera línea
-def evalua_problema(id, fichero, complejidad=''):
+def evalua_problema(id, fichero, prefijo_graficas='' , complejidad=''):
     dic_problema = lee_problema(id)
     with open(fichero, 'r') as fich:
         cad_funcion = fich.read()
+
+    graficas = []
 
     aumenta = dic_problema['aumentar']
     # solo calculo los tamaños si alguno se queda fijo
@@ -458,9 +470,9 @@ def evalua_problema(id, fichero, complejidad=''):
     if todo_correcto and (complejidad == 'T' or complejidad == 'OE'):
         # calculo la complejidad para entradas cada vez mayores - ¿y si aumentar == 0?
         tams, tiempos = evalua_complejidad(dic_problema, cad_funcion, tams_entrada, complejidad)
-        pinta_graficas(tams, tiempos, complejidad)
+        graficas=pinta_graficas(tams, tiempos, prefijo_graficas,complejidad)
 
-    return resultados
+    return resultados,graficas
 
 # print(evalua_problema('alfabetica', 'C:\\Users\\laura\\PycharmProjects\\TFG\\otros\\solucion-alfabetica.py'))
 # print(evalua_problema('menorque', 'C:\\Users\\laura\\PycharmProjects\\TFG\\otros\\solucion-menorque-mal.py'))

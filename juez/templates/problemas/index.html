@@ -11,7 +11,7 @@
         <div>
           <h1>{{ problema['title'] }}</h1>
         </div>
-          <a class="action" href="{{ url_for('problemas.resolver', id=problema['id']) }}">Resolver</a>
+          <a class="action" href="{{ url_for('problemas.resolver', problem_id=problema['id']) }}">Resolver</a>
 
       </header>
       <p class="body">{{ problema['body'] }}</p>
