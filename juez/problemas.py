@@ -1,7 +1,7 @@
 import os
 import juez.evaluador
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for, session
 )
 from werkzeug.exceptions import abort
 from werkzeug.utils import secure_filename
@@ -21,13 +21,14 @@ def allowed_file(filename):
 def index():
     ids=juez.evaluador.lista_problemas()
     problemas=[]
-    for id in ids:
-        problemas.append(juez.evaluador.lee_problema(id))
+    for id_prob in ids:
+        problemas.append(juez.evaluador.lee_problema(id_prob))
 
     return render_template('problemas/index.html', problemas=problemas)
 
-@bp.route('/<string:id>/resolver', methods=('GET', 'POST'))
-def resolver(id):
+@bp.route('/<string:problem_id>/resolver', methods=('GET', 'POST'))
+def resolver(problem_id):
+    graficas=[]
     resultado_evaluacion=""
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -47,8 +48,9 @@ def resolver(id):
         filepath=os.path.join(UPLOAD_FOLDER, filename)
         file.save(filepath)
 
-        resultado_evaluacion=juez.evaluador.evalua_problema(id,filepath)
+        plots_prefix=os.path.join("juez","static",str(id(session)))
 
+        resultado_evaluacion,graficas=juez.evaluador.evalua_problema(problem_id,filepath, plots_prefix, request.form['metodo'])
         os.remove(filepath)
 
-    return render_template('problemas/resolver.html', problema=juez.evaluador.lee_problema(id), resultado=resultado_evaluacion)
+    return render_template('problemas/resolver.html', problema=juez.evaluador.lee_problema(problem_id), resultado=resultado_evaluacion, graficas=graficas)
