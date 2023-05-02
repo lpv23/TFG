@@ -96,7 +96,7 @@ def entrada_aleatoria(tipo, n):
         if tipo.endswith('sorted'):
             resultado.sort()
         elif tipo.endswith('reversed'):
-            resultado.reverse()
+            resultado.sort(reverse=True)
         return resultado
     elif tipo.startswith('tuple'):
         resultado = []
@@ -452,11 +452,10 @@ def evalua_problema(id, fichero, complejidad=''):
 
     aumenta = dic_problema['aumentar']
     # solo calculo los tamaños si alguno se queda fijo
-    calcula_tams = True if len(aumenta) < len(dic_problema['tipo_param']) else False
+    calcula_tams = True if (aumenta != [] and len(aumenta) < len(dic_problema['tipo_param'])) else False
     todo_correcto, resultados, tams_entrada = comprueba_pruebas(dic_problema, cad_funcion, calcula_tams)
 
-    if todo_correcto and (complejidad == 'T' or complejidad == 'OE'):
-        # calculo la complejidad para entradas cada vez mayores - ¿y si aumentar == 0?
+    if todo_correcto and (complejidad == 'T' or complejidad == 'OE') and aumenta != []:
         tams, tiempos = evalua_complejidad(dic_problema, cad_funcion, tams_entrada, complejidad)
         pinta_graficas(tams, tiempos, complejidad)
 
@@ -489,5 +488,5 @@ def evalua_problema(id, fichero, complejidad=''):
 # evalua_problema('potencias2', os.path.join(base, 'solucion-potencias2-efi.py'), 'T')
 # evalua_problema('potencias2', os.path.join(base, 'solucion-potencias2-inefi.py'), 'OE')
 
-# EJEMPLOS MENORQUE 
+# EJEMPLOS MENORQUE
 # evalua_problema('menorque', os.path.join(base, 'solucion-menorque.py'), 'T')
