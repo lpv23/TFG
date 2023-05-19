@@ -6,23 +6,38 @@
 
 {% block content %}
 <p class="body">{{ problema['body'] }}</p>
-<form enctype=multipart/form-data method="POST">
+<form  id="evalua-form" enctype=multipart/form-data method="POST">
   <p>Selecciona el fichero:</p>
   <input type="file" name="file"/>
 
   <p>Selecciona respecto a qué magnitud se calcula la complejidad:</p>
  <select name="metodo" id="metodo">
+   <option value="">No calcular complejidad</option>
   <option value="T">Tiempo de ejecución</option>
   <option value="OE">Operaciones elementales</option>
 </select>
 
-  <p></p>
-  <input type="submit" value="Evalúa">
+     <input type="submit" value="Evalúa" id="evalua-btn">
+    <div id="spinner" style="display: none;">
+      <!-- Add your spinner HTML/CSS here -->
+      <div class="spinner"></div>
+    </div>
 
 </form>
 
+{% if resultado != "n/a" %}
+
 <div>
-  {% for result in resultado %}
+{% if resultado %}
+<p>Programa correcto</p>
+ {% else %}
+<p>Error en el programa. A continuación se muestran los resultados de cada prueba:</p>
+{% endif %}
+</div>
+
+{% if not resultado  %}
+<div>
+  {% for result in resultados_pruebas  %}
     <article class="post">
       <p class="body">{{ result }}</p>
     </article>
@@ -31,6 +46,7 @@
     {% endif %}
   {% endfor %}
 </div>
+{% endif %}
 
 {% for grafica in graficas %}
 <div>
@@ -38,6 +54,21 @@
 </div>
 {% endfor %}
 
+{% endif %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $("#evalua-form").on("submit", function() {
+        // Show the spinner when the form is submitted
+        $("#evalua-btn").prop("disabled", true); // Disable the button
+        $("#spinner").show();
+
+        // You can also perform additional actions here, such as AJAX request
+
+      });
+    });
+  </script>
 
 {% endblock %}
 

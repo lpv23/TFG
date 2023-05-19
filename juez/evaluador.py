@@ -471,7 +471,7 @@ def evalua_problema(id, fichero, prefijo_graficas='' , complejidad=''):
         tams, tiempos = evalua_complejidad(dic_problema, cad_funcion, tams_entrada, complejidad)
         graficas=pinta_graficas(tams, tiempos, prefijo_graficas,complejidad)
 
-    return resultados,graficas
+    return todo_correcto,resultados,graficas
 
 # print(evalua_problema('alfabetica', 'C:\\Users\\laura\\PycharmProjects\\TFG\\otros\\solucion-alfabetica.py'))
 # print(evalua_problema('menorque', 'C:\\Users\\laura\\PycharmProjects\\TFG\\otros\\solucion-menorque-mal.py'))

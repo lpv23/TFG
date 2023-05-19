@@ -29,7 +29,9 @@ def index():
 @bp.route('/<string:problem_id>/resolver', methods=('GET', 'POST'))
 def resolver(problem_id):
     graficas=[]
-    resultado_evaluacion=""
+    resultado_evaluacion="n/a"
+    resultados_pruebas=[]
+
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No has seleccionado ningún fichero')
@@ -50,7 +52,7 @@ def resolver(problem_id):
 
         plots_prefix=os.path.join("juez","static",str(id(session)))
 
-        resultado_evaluacion,graficas=juez.evaluador.evalua_problema(problem_id,filepath, plots_prefix, request.form['metodo'])
+        resultado_evaluacion,resultados_pruebas,graficas=juez.evaluador.evalua_problema(problem_id,filepath, plots_prefix, request.form['metodo'])
         os.remove(filepath)
 
-    return render_template('problemas/resolver.html', problema=juez.evaluador.lee_problema(problem_id), resultado=resultado_evaluacion, graficas=graficas)
+    return render_template('problemas/resolver.html', problema=juez.evaluador.lee_problema(problem_id), resultado=resultado_evaluacion,resultados_pruebas=resultados_pruebas, graficas=graficas)
