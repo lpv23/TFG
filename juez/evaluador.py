@@ -11,7 +11,6 @@ import sympy
 sufijo_entrada = "entrada.txt"
 sufijo_salida = "salida.txt"
 carpeta_problemas = "problemas"
-# carpeta_problemas = "C:\\Users\\laura\\PycharmProjects\\TFG\\problemas"
 
 # VARIABLES GLOBALES
 ejec_min = 50  # número de ejecuciones mínimas con tamaños diferentes
@@ -359,7 +358,7 @@ def pinta_graficas(x, y, prefijo_graficas, complejidad):
     fichero = prefijo_graficas + '_' + 'grafica_mejor.png'
     plt.savefig(fichero)
     retorno.append(os.path.basename(fichero))
-    plt.show()
+    # plt.show()
     plt.figure()
     plt.plot(x, y, '.-', label=label_comp)
     for i in range(len(funcs)):
@@ -369,8 +368,8 @@ def pinta_graficas(x, y, prefijo_graficas, complejidad):
             nombre = funcs[i].__name__
             if nombre == 'polinomial':
                 nombre += '\nexp=' + str(round(val_opt[i][-1], 3))
-            plt.plot(x, fx[i], '--',
-                     label='\n'.join([nombre, 'res=' + str(round(residuos[i], 3))]))
+            res = f"{residuos[i]:.1e}" if residuos[i] < 0.001 else str(round(residuos[i], 3))
+            plt.plot(x, fx[i], '--', label='\n'.join([nombre, 'res=' + res]))
     plt.legend(bbox_to_anchor=(1.05, 1.05), loc='upper left')
     plt.tight_layout()
     plt.title('Gráfica con todas las aproximaciones.')
@@ -378,15 +377,16 @@ def pinta_graficas(x, y, prefijo_graficas, complejidad):
     fichero = prefijo_graficas + '_' + 'grafica_todas.png'
     plt.savefig(fichero)
     retorno.append(os.path.basename(fichero))
-    plt.show()
+    # plt.show()
 
     return retorno
 
+
 # Ejecuta la función con cada uno de los ficheros de prueba que hay en el directorio del problema, comprueba si
 # la salida coincide con la esperada y devuelve una lista que contenga cadenas con el resultado de cada prueba.
-# - Si la prueba es correcta, el contenido será: 'OK' y su tiempo de ejecución.
-# - Si la prueba es incorrecta, el contenido será: entrada, salida obtenida y salida esperada.
-# - Si surge un error al ejecutar la prueba, el contenido será: 'ERROR', entrada y salida esperada.
+# - Si la prueba es correcta, el contenido será: 'Bien' y su tiempo de ejecución.
+# - Si la prueba es incorrecta, el contenido será: 'Fallo', entrada, salida esperada y salida obtenida.
+# - Si surge un error al ejecutar la prueba, el contenido será: 'Error', entrada, salida esperada y error obtenido.
 #
 # Los ficheros xxxxxxx.entrada.txt contienen un parámetro de entrada en cada línea.
 # Los ficheros xxxxxxx.salida.txt contienen la salida esperada en la primera línea.
@@ -417,13 +417,15 @@ def comprueba_pruebas(dic_problema, cad_funcion, calcula_tams=False):
             salidareal = funcion(*entrada_eval)
             tiempototal = time.perf_counter() - tiempoini
             if salidareal == salidaesperada:
-                resultados.append('OK' + ', ' + str(tiempototal))
+                resultados.append('Bien. Tiempo de ejecución:' + str(tiempototal))
             else:
                 todo_correcto = False
-                resultados.append('(' + ', '.join(entrada) + ')' + ', ' + str(salidaesperada) + ', ' + str(salidareal))
-        except:
+                resultados.append('Fallo. Entrada: (' + ', '.join(entrada) + '). Salida esperada: ' +
+                                  str(salidaesperada) + '. Salida obtenida: ' + str(salidareal))
+        except Exception as e:
             todo_correcto = False
-            resultados.append('Ha surgido un error. (' + ', '.join(entrada) + ')' + ', ' + str(salidaesperada))
+            resultados.append('Error. Entrada: (' + ', '.join(entrada) + '). Salida esperada: ' + str(salidaesperada) +
+                              '. Tipo de error: ' + str(type(e)))
 
     if calcula_tams and todo_correcto and len(pruebas) > 0:
         # Calcula los tamaños de entrada necesarios
@@ -467,16 +469,12 @@ def evalua_problema(id, fichero, prefijo_graficas='', complejidad=''):
 
     if todo_correcto and (complejidad == 'T' or complejidad == 'OE') and aumenta != []:
         tams, tiempos = evalua_complejidad(dic_problema, cad_funcion, tams_entrada, complejidad)
-        print('Ha tardado: ', time.perf_counter() - tiempo_inicial_inicial)
         graficas = pinta_graficas(tams, tiempos, prefijo_graficas, complejidad)
 
     return todo_correcto, resultados, graficas
 
 
-tiempo_inicial_inicial = time.perf_counter()
-
-# base = 'C:\\Users\\laura\\PycharmProjects\\TFG\\otros'
-# base = 'otros'
+# base = 'soluciones'
 
 # EJEMPLOS PALÍNDROMO
 # evalua_problema('palindromo', os.path.join(base, 'solucion-palindromo-efi.py'), complejidad='OE')
@@ -484,19 +482,20 @@ tiempo_inicial_inicial = time.perf_counter()
 
 # EJEMPLOS ORDENAR
 # evalua_problema('ordenar', os.path.join(base, 'solucion-ordenar-burbuja.py'), complejidad='T')
-# evalua_problema('ordenar', os.path.join(base, 'solucion-ordenar-insercion.py'), complejidad='OE')
-# evalua_problema('ordenar', os.path.join(base, 'solucion-ordenar-seleccion.py'), complejidad='OE')
+# evalua_problema('ordenar', os.path.join(base, 'solucion-ordenar-insercion.py'), complejidad='T')
+# evalua_problema('ordenar', os.path.join(base, 'solucion-ordenar-seleccion.py'), complejidad='T')
 # evalua_problema('ordenar', os.path.join(base, 'solucion-ordenar-sort.py'), complejidad='T')
 
 # EJEMPLOS BUSCAR
 # evalua_problema('buscar', os.path.join(base, 'solucion-buscar-binaria.py'), complejidad='OE')
 # evalua_problema('buscar', os.path.join(base, 'solucion-buscar-unoauno.py'), complejidad='OE')
-# evalua_problema('buscar', os.path.join(base, 'solucion-buscar-unoauno-inefi.py'), complejidad='OE')
+# evalua_problema('buscar', os.path.join(base, 'solucion-buscar-unoauno-inefi.py'), complejidad='T')
 # evalua_problema('buscar', os.path.join(base, 'solucion-buscar-in.py'), complejidad='T')
 
-# EJEMPLOS EXPONENCIAL
+# EJEMPLOS POTENCIAS DE 2
 # evalua_problema('potencias2', os.path.join(base, 'solucion-potencias2-efi.py'), complejidad='T')
 # evalua_problema('potencias2', os.path.join(base, 'solucion-potencias2-inefi.py'), complejidad='OE')
+# evalua_problema('potencias2', os.path.join(base, 'solucion-potencias2-pow.py'), complejidad='OE')
 
-# EJEMPLOS MENORQUE
+# EJEMPLOS MENOR QUE
 # evalua_problema('menorque', os.path.join(base, 'solucion-menorque.py'), complejidad='T')

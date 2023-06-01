@@ -11,26 +11,29 @@ from juez.db import get_db
 
 bp = Blueprint('problemas', __name__)
 ALLOWED_EXTENSIONS = {'py'}
-UPLOAD_FOLDER="./uploads"
+UPLOAD_FOLDER = "./uploads"
+
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+
 @bp.route('/')
 def index():
-    ids=juez.evaluador.lista_problemas()
-    problemas=[]
+    ids = juez.evaluador.lista_problemas()
+    problemas = []
     for id_prob in ids:
         problemas.append(juez.evaluador.lee_problema(id_prob))
 
     return render_template('problemas/index.html', problemas=problemas)
 
+
 @bp.route('/<string:problem_id>/resolver', methods=('GET', 'POST'))
 def resolver(problem_id):
-    graficas=[]
-    resultado_evaluacion="n/a"
-    resultados_pruebas=[]
+    graficas = []
+    resultado_evaluacion = "n/a"
+    resultados_pruebas = []
 
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -47,12 +50,15 @@ def resolver(problem_id):
             return redirect(request.url)
 
         filename = secure_filename(file.filename)
-        filepath=os.path.join(UPLOAD_FOLDER, filename)
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
         file.save(filepath)
 
-        plots_prefix=os.path.join("juez","static",str(id(session)))
+        plots_prefix = os.path.join("juez", "static", str(id(session)))
 
-        resultado_evaluacion,resultados_pruebas,graficas=juez.evaluador.evalua_problema(problem_id,filepath, plots_prefix, request.form['metodo'])
+        resultado_evaluacion, resultados_pruebas, graficas = juez.evaluador.evalua_problema(problem_id, filepath,
+                                                                                            plots_prefix,
+                                                                                            request.form['metodo'])
         os.remove(filepath)
 
-    return render_template('problemas/resolver.html', problema=juez.evaluador.lee_problema(problem_id), resultado=resultado_evaluacion,resultados_pruebas=resultados_pruebas, graficas=graficas)
+    return render_template('problemas/resolver.html', problema=juez.evaluador.lee_problema(problem_id),
+                           resultado=resultado_evaluacion, resultados_pruebas=resultados_pruebas, graficas=graficas)
